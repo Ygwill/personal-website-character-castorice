@@ -1,13 +1,25 @@
 <script setup>
+import { computed } from 'vue'
 import { iconUrl } from '../utils/assets.js'
 const props = defineProps({ char: { type: Object, required: true } })
+
+// 哪几条是「提升技能等级」的星魂，从文本里认，不写死数字
+const skillRanks = computed(() =>
+  props.char.eidolons.filter((e) => /等级\+\d/.test(e.desc)).map((e) => e.rank),
+)
+// 解锁材料：六条星魂的材料通常同一种，一致就合并成一句话，不一致就逐条列
+const sharedCost = computed(() => {
+  const sets = props.char.eidolons.map((e) => (e.cost || []).join('、'))
+  return sets.every((x) => x === sets[0]) ? sets[0] : ''
+})
 </script>
 
 <template>
   <div class="panel">
     <h2 class="panel-title">星魂</h2>
-    <p class="muted small" style="margin-top:0">
-      星魂 3 / 5 为技能等级提升；每条星魂解锁需 1 枚「昔涟星魂」材料（解包 materials 字段）。
+    <p v-if="skillRanks.length || sharedCost" class="muted small" style="margin-top:0">
+      <template v-if="skillRanks.length">星魂 {{ skillRanks.join(' / ') }} 为技能等级提升；</template>
+      <template v-if="sharedCost">每条星魂解锁需 1 枚 {{ sharedCost }}（取自解包 ranks.materials 字段）。</template>
     </p>
     <ol class="eids">
       <li v-for="e in props.char.eidolons" :key="e.id">

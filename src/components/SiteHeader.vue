@@ -1,8 +1,12 @@
 <script setup>
 import { computed } from 'vue'
-import { org } from '../data/site.js'
+import { charTags, characterRepos, org } from '../data/site.js'
 const props = defineProps({ char: { type: Object, required: true } })
 const home = computed(() => org.site + '/')
+// 已建成的仓库优先用 site.js 里对齐过的名字，没对上就退回 character-<tag>
+const repoName = computed(
+  () => characterRepos[charTags[props.char.name]] || 'character-' + props.char.slug,
+)
 </script>
 
 <template>
@@ -14,7 +18,7 @@ const home = computed(() => org.site + '/')
     </div>
     <nav class="links">
       <a :href="home">主站</a>
-      <a :href="org.url + '/' + (props.char.slug === 'cyrene' ? 'character-cyrene' : 'character-' + props.char.slug)">仓库</a>
+      <a :href="org.url + '/' + repoName">仓库</a>
       <a :href="org.url">组织</a>
     </nav>
   </header>
