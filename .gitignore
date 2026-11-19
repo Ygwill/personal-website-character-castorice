@@ -1,0 +1,35 @@
+# ---- 依赖 / 缓存 ----
+__pycache__/
+*.pyc
+node_modules
+.pnpm-store/
+
+# ---- 构建产物 ----
+dist/
+dist-ssr/
+build/
+coverage/
+*.tsbuildinfo
+.vite/
+
+# ---- 本地配置与缓存 ----
+*.local
+.env
+.env.*
+!.env.example
+.DS_Store
+Thumbs.db
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ---- 编辑器 ----
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
+
+# ---- 取数中间产物（可由 tools/fetch-data.sh 重新下载）----
+tools/raw/
+src/assets/**/_*-portrait-full.png
