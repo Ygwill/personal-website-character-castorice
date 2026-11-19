@@ -3,6 +3,8 @@
 一个角色一个仓库。页面结构参考 wiki 的角色页分栏习惯，**数据全部由官方解包索引生成**，
 不在前端手抄文本、不采信百科类站点的内容。当前是初版：昔涟（1415）跑通，换角色按下面的清单走。
 
+模板本身只保留**页面结构与取数脚本**，美术素材一个字节都不放 —— 图归各角色自己的仓库。
+
 ## 快速开始
 
 ```bash
@@ -13,8 +15,15 @@ npm install
 npm run dev              # http://127.0.0.1:5174
 ```
 
-图片资源（技能/行迹/星魂图标、立绘、材料图标）走 **Git LFS**，构建产物 `dist/`、
-依赖 `node_modules/`、取数中间产物 `tools/raw/` 都不入库。
+**本仓库不含任何图片**：`src/assets/` 下只有 `.gitkeep`，缺图的位置页面自动退化成文字占位。
+图片由各角色仓库落盘后提交（`.gitattributes` 已把 png/webp/jpg 等接进 **Git LFS**，直接复用）。
+构建产物 `dist/`、依赖 `node_modules/`、取数中间产物 `tools/raw/` 同样不入库。
+
+想先看带图的效果，可以临时回源到上游解包仓库（只建议本地用，别写进构建脚本）：
+
+```bash
+VITE_ICON_CDN=https://raw.githubusercontent.com/Mar-7th/StarRailRes/master/ npm run dev
+```
 
 ## 数据流
 
@@ -22,6 +31,7 @@ npm run dev              # http://127.0.0.1:5174
 tools/fetch-data.sh     抓 Mar-7th/StarRailRes 的 index_new/cn/ 共 11 个 JSON -> tools/raw/
 tools/gen.py --id 1415  生成 src/data/character.js（全部文案与数值）+ src/data/snapshot.js（索引指纹）
 tools/fetch-assets.py   按索引里的 icon 字段拉图 -> src/assets/（立绘缩到 1024 边长并转 WebP）
+                        这一步在角色仓库里做，模板仓库不跑、也不收图
 ```
 
 `src/data/character.js` **不要手改**，改逻辑改 `tools/gen.py`。
@@ -32,8 +42,9 @@ tools/fetch-assets.py   按索引里的 icon 字段拉图 -> src/assets/（立�
 1. `python3 tools/gen.py --id <角色 ID>`（ID 在 `tools/raw/characters.json` 里查，如 1413 长夜月）
 2. 在 `tools/gen.py` 的 `LORE_IDS` 里补这个角色对应的 `descriptions.json` 条目 id
    （上游没有「角色→文案」的反向表，只能人工筛；筛不出来就留空）
-3. `python3 tools/fetch-assets.py --id <角色 ID>` —— 图标会自动补齐，文件名沿用上游 basename，
-   前端按 basename 匹配（`src/utils/assets.js`），缺图的位置自动留空不报错
+3. `python3 tools/fetch-assets.py --id <角色 ID>` —— 图标按索引自动补齐，文件名沿用上游 basename，
+   前端按 basename 匹配（`src/utils/assets.js`）。**图提交进角色仓库**（LFS），不要回填到模板；
+   模板页没图也照样渲染，不报错
 4. 立绘/头像已由脚本按 `<tag>-portrait.webp` / `<tag>-avatar.png` 命名，`tag` 取自索引，无需改名
 5. `src/data/site.js`：
    - `unknownFields` 换成这个角色自己「缺一手出处所以不写」的字段
@@ -59,9 +70,11 @@ nginx 侧配法与主站一致，见 `personal-website/main` 的 README。
 
 ## 还没做的
 
-- 语音文本（上游索引里没有现成的角色语音表）
+- 语音文本：已核实上游 `index_new/cn`、`index_min/cn` 两个目录（各 23 个索引）里**都没有语音表**，
+  要做得另找一手来源，不硬凑
 - 皮肤（`spinner.json` 不在这个仓库里；wiki 提到的「昔涟·赴约」未采信）
-- 技能晋阶材料的明细表、行迹解锁材料
+- 培养材料汇总：已核实「技能等级靠行迹节点提升、技能索引本身不带材料」，所以成本 = 晋阶 + 行迹，
+  数据取得全（昔涟满培养：信用点 330.8 万、命运的足迹 8 个），暂时按决定不做进页面
 - 称号 / 实装日期 / 卡池：解包不含，需官方公告，先挂在「尚未确认」里
 
 ## 声明

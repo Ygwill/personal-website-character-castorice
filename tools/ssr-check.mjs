@@ -34,11 +34,12 @@ async function main() {
   }
   const joined = Object.values(parts).join('\n').replace(/<[^>]+>/g, ' ')
   console.log('---- 关键内容抽查 ----')
-  for (const k of ['昔涟', '冰', '记忆', '看，希望的起始！', '盛放吧，来世的乐土', '众愿啊，汇流如歌',
+  const keys = ['昔涟', '冰', '记忆', '看，希望的起始！', '盛放吧，来世的乐土', '众愿啊，汇流如歌',
     '记忆的净子', '空白，在诗篇的起点', '恐惧踏碎血肉', '海妖残鳍', 'Mar-7th/StarRailRes', '尚未确认',
-    '德谬歌', '献予「真我」之诗', '长夜月', '1319', '5%']) {
-    if (!joined.includes(k)) console.log('✗ 缺失 ' + k)
-  }
-  console.log('总渲染字节', total)
+    '德谬歌', '献予「真我」之诗', '长夜月', '1319', '5%']
+  const miss = keys.filter((k) => !joined.includes(k))
+  miss.forEach((k) => console.log('✗ 缺失 ' + k))
+  console.log('关键串 %d/%d 命中，总渲染字节 %d（模板不存图，故无 <img> 属正常）',
+    keys.length - miss.length, keys.length, total)
 }
 main()

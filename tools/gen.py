@@ -88,9 +88,19 @@ def main():
     c = chars[cid]
     pr = promotions[cid]
 
+    # 模板仓库不存图片素材：这里同时记下每个图标在上游的完整路径，
+    # 前端本地找不到图时可以按这张表回源（也可由角色仓库把图落盘进 src/assets/）。
+    icon_paths = {}
+
+    def icon(src):
+        n = base(src)
+        if n and src:
+            icon_paths[n] = src
+        return n
+
     def item(iid):
         v = items.get(str(iid)) or {}
-        return {'id': str(iid), 'name': v.get('name') or str(iid), 'icon': base(v.get('icon'))}
+        return {'id': str(iid), 'name': v.get('name') or str(iid), 'icon': icon(v.get('icon'))}
 
     # ---- 技能 ----
     skills = []
@@ -106,7 +116,7 @@ def main():
             'maxLevel': v['max_level'],
             'desc': clean(v.get('desc')), 'short': clean(v.get('simple_desc')),
             'levels': v.get('params') or [],
-            'icon': base(v.get('icon')),
+            'icon': icon(v.get('icon')),
         }
         scan_flags(d['desc'])
         skills.append(d)
@@ -122,7 +132,7 @@ def main():
             for p in (L.get('properties') or []):
                 pv = props.get(p['type']) or {}
                 bonus.append({'name': pv.get('name') or p['type'], 'value': p['value'],
-                              'raw': p['type'], 'icon': base(pv.get('icon'))})
+                              'raw': p['type'], 'icon': icon(pv.get('icon'))})
         ups = []
         for lu in (v.get('level_up_skills') or []):
             s = sk.get(str(lu['id']))
@@ -139,7 +149,7 @@ def main():
         traces.append({
             'id': t, 'name': v['name'], 'anchor': v.get('anchor'),
             'desc': clean(v.get('desc')), 'params': (v.get('params') or [[]])[0],
-            'maxLevel': v['max_level'], 'kind': kind, 'icon': base(v.get('icon')),
+            'maxLevel': v['max_level'], 'kind': kind, 'icon': icon(v.get('icon')),
             'bonus': bonus, 'levelUpSkills': ups,
             'minPromotion': min([L.get('promotion', 0) for L in (v.get('levels') or [])] or [0]),
         })
@@ -153,7 +163,7 @@ def main():
         scan_flags(v.get('desc'))
         eidolons.append({
             'rank': v['rank'], 'id': str(rid), 'name': v['name'],
-            'desc': clean(v.get('desc')), 'icon': base(v.get('icon')),
+            'desc': clean(v.get('desc')), 'icon': icon(v.get('icon')),
             'cost': [item(m['id'])['name'] for m in (v.get('materials') or [])],
         })
 
@@ -187,11 +197,12 @@ def main():
         'nickname': nick['characters'].get(c['id']) or [c['name']],
         'rarity': c['rarity'],
         'element': c['element'], 'elementName': (elements.get(c['element']) or {}).get('name'),
-        'elementIcon': base((elements.get(c['element']) or {}).get('icon')),
+        'elementIcon': icon((elements.get(c['element']) or {}).get('icon')),
         'path': c['path'], 'pathName': (paths.get(c['path']) or {}).get('name'),
-        'pathIcon': base((paths.get(c['path']) or {}).get('icon')),
+        'pathIcon': icon((paths.get(c['path']) or {}).get('icon')),
         'energyMax': c['max_sp'],
         'portrait': c['portrait'], 'avatar': c['icon'], 'preview': c['preview'],
+        'iconPaths': icon_paths,
         'tiers': tiers, 'ascension': asc, 'skills': skills,
         'traces': traces, 'eidolons': eidolons, 'lore': lore,
     }
@@ -230,8 +241,9 @@ def main():
         f.write(snapjs)
 
     print('未识别的占位符格式标记:', sorted(used_flags) or '无')
-    print('skills %d traces %d eidolons %d tiers %d asc %d lore %d'
-          % (len(skills), len(traces), len(eidolons), len(tiers), len(asc), len(lore)))
+    print('skills %d traces %d eidolons %d tiers %d asc %d lore %d 图标回源路径 %d 条'
+          % (len(skills), len(traces), len(eidolons), len(tiers), len(asc), len(lore),
+             len(icon_paths)))
     print('-> %s (%d B)' % (args.out, len(js.encode('utf-8'))))
     print('-> %s (%d B, %d 个索引)' % (snap_path, len(snapjs.encode('utf-8')), len(files)))
 
