@@ -45,7 +45,7 @@ export const poemOwners = {
 export const dataSources = [
   {
     label: 'Mar-7th/StarRailRes',
-    note: '官方游戏数据的解包索引（分支 master，角色 1415）',
+    note: '官方游戏数据的解包索引（分支 master，具体角色与索引指纹见下方快照）',
     url: 'https://github.com/Mar-7th/StarRailRes',
   },
   {

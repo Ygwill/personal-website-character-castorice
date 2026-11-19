@@ -35,7 +35,10 @@ const quote = computed(() => {
           <img v-if="iconUrl(char.elementIcon)" class="ic" :src="iconUrl(char.elementIcon)" :alt="char.elementName" />
           <span>{{ props.char.elementName }}</span>
         </li>
-        <li><span class="k">能量上限</span><span class="v">{{ props.char.energyMax }}</span></li>
+        <li>
+          <span class="k">能量上限</span>
+          <span class="v">{{ props.char.energyMax == null ? '—' : props.char.energyMax }}</span>
+        </li>
         <li><span class="k">角色 ID</span><span class="v">{{ props.char.id }}</span></li>
       </ul>
 

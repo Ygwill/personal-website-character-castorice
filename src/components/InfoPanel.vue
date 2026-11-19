@@ -9,12 +9,12 @@ const rows = computed(() => [
   ['稀有度', '★'.repeat(props.char.rarity)],
   ['命途', props.char.pathName + '（' + props.char.path + '）'],
   ['战斗属性', props.char.elementName + '（' + props.char.element + '）'],
-  ['能量上限', props.char.energyMax],
+  ['能量上限', props.char.energyMax == null ? '索引里 max_sp 为 null，未采信任何猜测值' : props.char.energyMax],
   ['昵称 / 本名', (props.char.nickname || []).join('、')],
   ['档案条数', props.char.lore.length + ' 条（见「档案」）'],
 ])
 
-// 忆灵：从技能里认出与「德谬歌」相关的条目
+// 忆灵：技能类型以 Memosprite 开头的条目（各角色通用）
 const memosprite = computed(() => props.char.skills.filter((s) => s.type.startsWith('Memosprite')))
 const types = computed(() => {
   const m = new Map()
@@ -40,7 +40,7 @@ const types = computed(() => {
     <div class="panel">
       <h2 class="panel-title">技能构成</h2>
       <p class="muted small" style="margin-top:0">
-        共 {{ props.char.skills.length }} 条技能条目，其中忆灵（德谬歌）相关 {{ memosprite.length }} 条。
+        共 {{ props.char.skills.length }} 条技能条目，其中忆灵相关 {{ memosprite.length }} 条。
       </p>
       <ul class="types">
         <li v-for="t in types" :key="t[0]">

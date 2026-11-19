@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import character from './data/character.js'
 import SiteHeader from './components/SiteHeader.vue'
 import CharHero from './components/CharHero.vue'
@@ -13,6 +13,8 @@ import LorePanel from './components/LorePanel.vue'
 import SourcesPanel from './components/SourcesPanel.vue'
 import SiteFooter from './components/SiteFooter.vue'
 
+// 「献诗」栏目只在角色真有这批技能条目时出现（昔涟的德谬歌献诗是特例，别的角色不该空一栏）
+const hasPoems = computed(() => (character.skills || []).some((s) => (s.name || '').includes('献予「')))
 const tabs = [
   { key: 'info', label: '信息' },
   { key: 'skill', label: '技能' },
@@ -23,6 +25,7 @@ const tabs = [
   { key: 'lore', label: '档案' },
   { key: 'src', label: '数据溯源' },
 ]
+const shownTabs = computed(() => tabs.filter((t) => t.key !== 'poem' || hasPoems.value))
 const active = ref('info')
 </script>
 
@@ -34,7 +37,7 @@ const active = ref('info')
 
     <nav class="tabs" aria-label="角色页栏目">
       <button
-        v-for="t in tabs"
+        v-for="t in shownTabs"
         :key="t.key"
         class="btn"
         :class="{ 'is-active': active === t.key }"

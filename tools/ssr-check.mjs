@@ -34,12 +34,26 @@ async function main() {
   }
   const joined = Object.values(parts).join('\n').replace(/<[^>]+>/g, ' ')
   console.log('---- 关键内容抽查 ----')
-  const keys = ['昔涟', '冰', '记忆', '看，希望的起始！', '盛放吧，来世的乐土', '众愿啊，汇流如歌',
-    '记忆的净子', '空白，在诗篇的起点', '恐惧踏碎血肉', '海妖残鳍', 'Mar-7th/StarRailRes', '尚未确认',
-    '德谬歌', '献予「真我」之诗', '长夜月', '1319', '5%']
+  // 关键串全部从数据里现取，换角色不必改这个脚本
+  const c = character
+  const t = c.tiers[c.tiers.length - 1]
+  const firstMat = (c.ascension[0] ? c.ascension[0].items : []).find((m) => m.id !== '2')
+  const keys = [
+    c.name, c.elementName, c.pathName, String(c.id), String(c.rarity),
+    c.skills[0] && c.skills[0].name,
+    c.skills[c.skills.length - 1] && c.skills[c.skills.length - 1].name,
+    (c.traces.find((x) => x.kind === 'exclusive') || {}).name,
+    c.eidolons[0] && c.eidolons[0].name,
+    firstMat && firstMat.name,
+    c.lore[0] && c.lore[0].title,
+    // 属性表的算法结果也要落到字面上：末档 80 级的生命、首档暴击率
+    String(Math.floor(t.hp.base + t.hp.step * 79)),
+    Math.round(c.tiers[0].crit_rate.base * 100) + '%',
+    'Mar-7th/StarRailRes', '尚未确认',
+  ].filter(Boolean)
   const miss = keys.filter((k) => !joined.includes(k))
   miss.forEach((k) => console.log('✗ 缺失 ' + k))
-  console.log('关键串 %d/%d 命中，总渲染字节 %d（模板不存图，故无 <img> 属正常）',
-    keys.length - miss.length, keys.length, total)
+  console.log('关键串 %d/%d 命中 %s，总渲染字节 %d（模板不存图，故无 <img> 属正常）',
+    keys.length - miss.length, keys.length, JSON.stringify(keys), total)
 }
 main()
